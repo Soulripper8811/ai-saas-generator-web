@@ -19,7 +19,7 @@ const MobileSidebar = () => {
         </Button>
       </SheetTrigger>
       <SheetContent side={"left"} className="p-0">
-        <Sidebar />
+        <Sidebar apiLimitCount={10} />
       </SheetContent>
     </Sheet>
   );
