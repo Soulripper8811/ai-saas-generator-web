@@ -25,6 +25,7 @@ import { Card, CardFooter } from "@/components/ui/card";
 import Image from "next/image";
 import NoImage from "./_components/NoImage";
 import { useProModal } from "@/hooks/use-pro-modal";
+import toast from "react-hot-toast";
 
 const ImagePage = () => {
   const { onOpen } = useProModal();
@@ -49,6 +50,8 @@ const ImagePage = () => {
     } catch (error: any) {
       if (error?.response?.status === 403) {
         onOpen();
+      } else {
+        toast.error("Something went wrong. Please try again later.");
       }
       console.error("Error generating image:", error);
     } finally {

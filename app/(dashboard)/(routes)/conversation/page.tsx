@@ -18,7 +18,8 @@ import { cn } from "@/lib/utils";
 import { UserAvatar } from "@/components/user-avatar";
 import { BotAvatar } from "@/components/bot-avatar";
 import { useProModal } from "@/hooks/use-pro-modal";
-
+import ReactMarkdown from "react-markdown";
+import toast from "react-hot-toast";
 type Messages = {
   role: "system" | "user" | "assistant";
   content: string;
@@ -52,6 +53,8 @@ const ConversationPage = () => {
     } catch (error: any) {
       if (error?.response?.status === 403) {
         onOpen();
+      } else {
+        toast.error("Something went wrong. Please try again later.");
       }
     } finally {
       router.refresh();
@@ -115,7 +118,19 @@ const ConversationPage = () => {
               )}
             >
               {message.role === "user" ? <UserAvatar /> : <BotAvatar />}
-              <p className="text-sm ">{message.content}</p>
+              {/* <p className="text-sm ">{message.content}</p> */}
+              <ReactMarkdown
+                components={{
+                  pre: ({ node, ...props }) => (
+                    <div className="overflow-auto w-full my-2 bg-black/10 p-2 rounded-lg">
+                      <pre {...props} />
+                    </div>
+                  ),
+                }}
+                className={"text-sm overflow-hidden leading-7"}
+              >
+                {message.content}
+              </ReactMarkdown>
             </div>
           ))}
         </div>

@@ -19,6 +19,7 @@ import { UserAvatar } from "@/components/user-avatar";
 import { BotAvatar } from "@/components/bot-avatar";
 import ReactMarkdown from "react-markdown";
 import { useProModal } from "@/hooks/use-pro-modal";
+import toast from "react-hot-toast";
 
 type Messages = {
   role: "system" | "user" | "assistant";
@@ -37,7 +38,6 @@ const CodePage = () => {
   const isLoading = form.formState.isSubmitting;
 
   const onSubmit = async (values: z.infer<typeof formSchmea>) => {
-    console.log(values);
     try {
       const userMessage = {
         role: "user",
@@ -53,6 +53,8 @@ const CodePage = () => {
     } catch (error: any) {
       if (error?.response?.status === 403) {
         onOpen();
+      } else {
+        toast.error("Something went wrong. Please try again later.");
       }
     } finally {
       router.refresh();
@@ -123,6 +125,7 @@ const CodePage = () => {
                       <pre {...props} />
                     </div>
                   ),
+
                   code: ({ node, ...props }) => (
                     <code className="bg-black/10 rounded-lg p-1" {...props} />
                   ),

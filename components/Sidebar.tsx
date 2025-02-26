@@ -17,6 +17,7 @@ import FreeCounter from "./free-counter";
 
 interface SideBarProps {
   apiLimitCount: number;
+  isPro: boolean;
 }
 
 const routes = [
@@ -63,7 +64,7 @@ const routes = [
   },
 ];
 
-const Sidebar = ({ apiLimitCount }: SideBarProps) => {
+const Sidebar = ({ apiLimitCount, isPro = false }: SideBarProps) => {
   const pathname = usePathname();
 
   return (
@@ -96,7 +97,7 @@ const Sidebar = ({ apiLimitCount }: SideBarProps) => {
           ))}
         </div>
       </div>
-      <FreeCounter apiLimitCount={apiLimitCount} />
+      <FreeCounter apiLimitCount={apiLimitCount} isPro={isPro} />
     </div>
   );
 };

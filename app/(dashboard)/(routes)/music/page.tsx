@@ -15,6 +15,7 @@ import { useRouter } from "next/navigation";
 import { Empty } from "@/components/Empty";
 import { Loader } from "@/components/Loader";
 import { useProModal } from "@/hooks/use-pro-modal";
+import toast from "react-hot-toast";
 
 const MusicPage = () => {
   const { onOpen } = useProModal();
@@ -39,6 +40,8 @@ const MusicPage = () => {
     } catch (error: any) {
       if (error?.response?.status === 403) {
         onOpen();
+      } else {
+        toast.error("Something went wrong. Please try again later.");
       }
       console.error("Error generating music:", error);
       // Optionally, show the error to the user

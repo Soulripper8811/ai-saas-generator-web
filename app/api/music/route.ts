@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { auth } from "@clerk/nextjs/server";
 import { checkApiLimit, increaseApiLimit } from "@/lib/api-limit";
+import { checkSubscription } from "@/lib/subscription";
 
 export async function POST(req: Request) {
   try {
@@ -15,12 +16,13 @@ export async function POST(req: Request) {
       });
     }
     const freeTrail = await checkApiLimit();
-
-    if (!freeTrail) {
+    const isPro = await checkSubscription();
+    if (!freeTrail && !isPro) {
       return NextResponse.json("You have reached your limit of fre trail.", {
         status: 403,
       });
     }
+
     const response = await fetch(
       "https://router.huggingface.co/hf-inference/models/facebook/musicgen-small",
       {
@@ -37,7 +39,10 @@ export async function POST(req: Request) {
     const base64String = arrayBufferToBase64(buffer);
     const mimeType = "audio/mpeg"; // Change if needed
     const dataUrl = `data:${mimeType};base64,${base64String}`;
-    await increaseApiLimit();
+
+    if (!isPro) {
+      await increaseApiLimit();
+    }
     return NextResponse.json(dataUrl);
   } catch (error) {
     console.log("Code error", error);

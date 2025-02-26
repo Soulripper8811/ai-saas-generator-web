@@ -4,6 +4,7 @@ import { NextResponse } from "next/server";
 import { auth } from "@clerk/nextjs/server";
 import { HfInference } from "@huggingface/inference";
 import { checkApiLimit, increaseApiLimit } from "@/lib/api-limit";
+import { checkSubscription } from "@/lib/subscription";
 
 const openai = new OpenAI({
   apiKey: process.env.OPEN_AI_KEY,
@@ -42,12 +43,13 @@ export async function POST(req: Request) {
     // return NextResponse.json(response.data[0].url);
 
     const freeTrail = await checkApiLimit();
-
-    if (!freeTrail) {
+    const isPro = await checkSubscription();
+    if (!freeTrail && !isPro) {
       return NextResponse.json("You have reached your limit of fre trail.", {
         status: 403,
       });
     }
+
     const image = await client.textToImage({
       model: "black-forest-labs/FLUX.1-schnell",
       inputs: prompt,
@@ -59,7 +61,10 @@ export async function POST(req: Request) {
 
     const mimeType = "image/png"; // Change if needed
     const dataUrl = `data:${mimeType};base64,${base64String}`;
-    await increaseApiLimit();
+    if (!isPro) {
+      await increaseApiLimit();
+    }
+
     return NextResponse.json(dataUrl);
   } catch (error) {
     console.log("Image error", error);

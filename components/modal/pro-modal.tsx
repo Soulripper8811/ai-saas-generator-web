@@ -1,6 +1,6 @@
 "use client";
 
-import React from "react";
+import React, { useState } from "react";
 import {
   Dialog,
   DialogContent,
@@ -16,9 +16,22 @@ import { Card } from "../ui/card";
 import { cn } from "@/lib/utils";
 import { Check, Zap } from "lucide-react";
 import { Button } from "../ui/button";
+import axios from "axios";
 
 const ProModal = () => {
   const { isOpen, onOpen, onClose } = useProModal();
+  const [loading, setLoading] = useState(false);
+  const onSubscribe = async () => {
+    try {
+      setLoading(true);
+      const response = await axios.get("/api/stripe");
+      window.location.href = response.data.url;
+    } catch (error) {
+      console.log(`Error subscribing to pro in Client: ${error}`);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
@@ -50,7 +63,12 @@ const ProModal = () => {
           </DialogDescription>
         </DialogHeader>
         <DialogFooter>
-          <Button className="w-full" variant={"premium"} size={"lg"}>
+          <Button
+            className="w-full"
+            variant={"premium"}
+            size={"lg"}
+            onClick={onSubscribe}
+          >
             Upgrade <Zap className="w4 h-4 w-full fill-white" />
           </Button>
         </DialogFooter>

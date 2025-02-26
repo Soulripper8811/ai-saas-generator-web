@@ -3,6 +3,7 @@ import Groq from "groq-sdk";
 import { NextResponse } from "next/server";
 import { auth } from "@clerk/nextjs/server";
 import { checkApiLimit, increaseApiLimit } from "@/lib/api-limit";
+import { checkSubscription } from "@/lib/subscription";
 
 const openai = new OpenAI({
   apiKey: process.env.OPEN_AI_KEY,
@@ -29,12 +30,8 @@ export async function POST(req: Request) {
     }
 
     const freeTrail = await checkApiLimit();
+    const isPro = await checkSubscription();
 
-    if (!freeTrail) {
-      return NextResponse.json("You have reached your limit of fre trail.", {
-        status: 403,
-      });
-    }
     // const response = await openai.chat.completions.create({
     //   model: "gpt-3.5-turbo",
     //   messages:[instructionMessage, ...messages],
@@ -54,12 +51,20 @@ export async function POST(req: Request) {
     //   "Sending messages to Groq:",
     //   JSON.stringify(sanitizedMessages, null, 2)
     // );
+    if (!freeTrail && !isPro) {
+      return NextResponse.json("You have reached your limit of fre trail.", {
+        status: 403,
+      });
+    }
 
     const groqResponse = await groq.chat.completions.create({
       model: "llama3-70b-8192",
       messages: [instructionMessage, ...sanitizedMessages],
     });
-    await increaseApiLimit();
+    if (!isPro) {
+      await increaseApiLimit();
+    }
+
     return NextResponse.json({
       role: "system",
       content: groqResponse.choices[0].message.content,
