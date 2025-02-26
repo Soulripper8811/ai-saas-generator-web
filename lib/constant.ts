@@ -1,4 +1,4 @@
-export const MAX_FREE_COUNT = 1;
+export const MAX_FREE_COUNT = 50;
 
 import {
   ArrowRight,
