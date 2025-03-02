@@ -6,6 +6,7 @@ import {
   LayoutDashboard,
   MessageSquare,
   MusicIcon,
+  ScanEye,
   Settings,
   VideoIcon,
 } from "lucide-react";
@@ -40,9 +41,9 @@ const routes = [
     color: "text-pink-700",
   },
   {
-    label: "Video Generation",
-    icon: VideoIcon,
-    href: "/video",
+    label: "Image Analysis",
+    icon: ScanEye,
+    href: "/imageanalysis",
     color: "text-orange-700",
   },
   {

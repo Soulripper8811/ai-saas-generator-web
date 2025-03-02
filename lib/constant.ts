@@ -6,6 +6,7 @@ import {
   ImageIcon,
   MessageSquare,
   MusicIcon,
+  ScanEye,
   VideoIcon,
 } from "lucide-react";
 export const tools = [
@@ -31,9 +32,9 @@ export const tools = [
     bgColor: "bg-pink-700/10",
   },
   {
-    label: "Video Generation",
-    icon: VideoIcon,
-    href: "/video",
+    label: "Image Analysis",
+    icon: ScanEye,
+    href: "/imageanalysis",
     color: "text-orange-700",
     bgColor: "bg-orange-700/10",
   },
