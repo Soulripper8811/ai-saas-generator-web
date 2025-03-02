@@ -13,7 +13,6 @@ export async function GET(request: Request) {
     if (!userId || !user) {
       return new NextResponse("Unauthorized", { status: 401 });
     }
-    console.log("userId routes wala", userId);
     const userSubscription = await prismadb.userSubscription.findUnique({
       where: {
         userId: userId,
@@ -56,7 +55,6 @@ export async function GET(request: Request) {
 
     return new NextResponse(JSON.stringify({ url: stripeSession.url }));
   } catch (error) {
-    console.log("Stripe_Error", error);
     return new NextResponse("Internal server error", { status: 500 });
   }
 }

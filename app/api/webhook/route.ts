@@ -31,7 +31,6 @@ export async function POST(req: Request) {
       return new NextResponse("User id is required", { status: 400 });
     }
 
-    console.log("userid", session?.metadata?.userId);
     try {
       await prismadb.userSubscription.create({
         data: {
@@ -44,7 +43,6 @@ export async function POST(req: Request) {
           ),
         },
       });
-      console.log("Subscription inserted successfully!");
     } catch (error) {
       console.error("Prisma error:", error);
     }

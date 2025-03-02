@@ -17,6 +17,7 @@ import { cn } from "@/lib/utils";
 import { Check, Zap } from "lucide-react";
 import { Button } from "../ui/button";
 import axios from "axios";
+import toast from "react-hot-toast";
 
 const ProModal = () => {
   const { isOpen, onOpen, onClose } = useProModal();

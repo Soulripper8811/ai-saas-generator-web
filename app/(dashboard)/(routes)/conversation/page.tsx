@@ -37,7 +37,6 @@ const ConversationPage = () => {
   const isLoading = form.formState.isSubmitting;
 
   const onSubmit = async (values: z.infer<typeof formSchmea>) => {
-    console.log(values);
     try {
       const userMessage = {
         role: "user",
