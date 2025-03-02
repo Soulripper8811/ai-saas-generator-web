@@ -34,13 +34,6 @@ export async function POST(req: Request) {
         status: 400,
       });
     }
-    // const response = await openai.images.generate({
-    //   model: "flux-dev",
-    //   prompt: prompt,
-    //   size: resolution,
-    // });
-    // console.log(response.data);
-    // return NextResponse.json(response.data[0].url);
 
     const freeTrail = await checkApiLimit();
     const isPro = await checkSubscription();
@@ -67,7 +60,6 @@ export async function POST(req: Request) {
 
     return NextResponse.json(dataUrl);
   } catch (error) {
-    console.log("Image error", error);
     return NextResponse.json("Interal Server error", { status: 500 });
   }
 }

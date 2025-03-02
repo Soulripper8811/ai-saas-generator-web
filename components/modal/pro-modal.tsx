@@ -27,7 +27,7 @@ const ProModal = () => {
       const response = await axios.get("/api/stripe");
       window.location.href = response.data.url;
     } catch (error) {
-      console.log(`Error subscribing to pro in Client: ${error}`);
+      toast.error("Something went wrong. Please try again later.");
     } finally {
       setLoading(false);
     }

@@ -18,10 +18,7 @@ export const checkSubscription = async () => {
     },
   });
   if (!userSubscription) return false;
-  console.log(
-    "date hu subscription ki",
-    userSubscription?.stripeCurrentPeriodEnd?.getTime()!
-  );
+
   const isValid =
     userSubscription?.stripePriceId &&
     userSubscription?.stripeCurrentPeriodEnd?.getTime()! + DAY_IN_MS >
