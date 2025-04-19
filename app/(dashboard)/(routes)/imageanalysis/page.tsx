@@ -39,7 +39,6 @@ const UploadForm = () => {
     const filereader = new FileReader();
     filereader.readAsDataURL(file);
     filereader.onloadend = () => {
-      console.log(filereader.result);
       setPreview(filereader.result as string);
     };
   };
@@ -47,7 +46,6 @@ const UploadForm = () => {
   const onSubmit = async () => {
     try {
       const response = await axios.post("/api/imageanalysis", { preview });
-      console.log("frontend ka response", response.data);
       setResult(response.data);
       toast.success("Image Analysis Generated Successfully");
     } catch (error: any) {

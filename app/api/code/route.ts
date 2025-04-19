@@ -47,10 +47,7 @@ export async function POST(req: Request) {
       return { role: msg.role, content: msg.content };
     });
 
-    // console.log(
-    //   "Sending messages to Groq:",
-    //   JSON.stringify(sanitizedMessages, null, 2)
-    // );
+    
     if (!freeTrail && !isPro) {
       return NextResponse.json("You have reached your limit of fre trail.", {
         status: 403,
@@ -70,7 +67,6 @@ export async function POST(req: Request) {
       content: groqResponse.choices[0].message.content,
     });
   } catch (error) {
-    console.log("Code error", error);
     return NextResponse.json("Interal Server error", { status: 500 });
   }
 }

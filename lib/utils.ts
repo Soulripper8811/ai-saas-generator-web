@@ -6,5 +6,5 @@ export function cn(...inputs: ClassValue[]) {
 }
 
 export function absoluteUrl(path: string) {
-  return `https://ai-saas-generator-ml37ltv81-soulripper8811s-projects.vercel.app${path}`;
+  return `${process.env.NEXT_PUBLIC_BASE_URL}${path}`;
 }

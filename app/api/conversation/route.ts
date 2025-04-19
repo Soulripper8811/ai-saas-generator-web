@@ -34,10 +34,7 @@ export async function POST(req: Request) {
       return { role: msg.role, content: msg.content };
     });
 
-    // console.log(
-    //   "Sending messages to Groq:",
-    //   JSON.stringify(sanitizedMessages, null, 2)
-    // );
+   
 
     const freeTrail = await checkApiLimit();
     const isPro = await checkSubscription();
@@ -60,7 +57,7 @@ export async function POST(req: Request) {
       content: groqResponse.choices[0].message.content,
     });
   } catch (error) {
-    console.log("Conversation error", error);
+    
     return NextResponse.json("Interal Server error", { status: 500 });
   }
 }
