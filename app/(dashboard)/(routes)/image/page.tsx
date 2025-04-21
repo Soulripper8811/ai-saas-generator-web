@@ -58,7 +58,7 @@ const ImagePage = () => {
       router.refresh();
     }
   };
-
+  console.log(singleImage);
   return (
     <div>
       <Heading
