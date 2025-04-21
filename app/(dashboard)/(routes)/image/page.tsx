@@ -5,7 +5,7 @@ import { Download, ImageIcon } from "lucide-react";
 import React, { useState } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
-import { amountOptions, formSchmea, resolutionOptions } from "./constant";
+import { formSchema, resolutionOptions, providerOptions } from "./constant";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Form, FormControl, FormField, FormItem } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
@@ -32,21 +32,26 @@ const ImagePage = () => {
   const [singleImage, setSingleImage] = useState<string>("");
   const router = useRouter();
 
-  const form = useForm<z.infer<typeof formSchmea>>({
-    resolver: zodResolver(formSchmea),
+  const form = useForm<z.infer<typeof formSchema>>({
+    resolver: zodResolver(formSchema),
     defaultValues: {
       prompt: "",
       resolution: "512x512",
+      provider: "openai", // Default to OpenAI
     },
   });
 
   const isLoading = form.formState.isSubmitting;
 
-  const onSubmit = async (values: z.infer<typeof formSchmea>) => {
+  const onSubmit = async (values: z.infer<typeof formSchema>) => {
     try {
+      setSingleImage(""); // Clear any previous image
       const response = await axios.post("/api/image", values);
       setSingleImage(response.data); // Ensure response has correct structure
-      form.reset();
+      form.reset({
+        ...values,
+        prompt: "", // Only reset the prompt
+      });
     } catch (error: any) {
       if (error?.response?.status === 403) {
         onOpen();
@@ -58,7 +63,7 @@ const ImagePage = () => {
       router.refresh();
     }
   };
-  console.log(singleImage);
+
   return (
     <div>
       <Heading
@@ -77,7 +82,7 @@ const ImagePage = () => {
             <FormField
               name="prompt"
               render={({ field }) => (
-                <FormItem className="col-span-12 lg:col-span-8">
+                <FormItem className="col-span-12 lg:col-span-6">
                   <FormControl>
                     <Input
                       className="border-0 outline-none focus-visible:ring-0 focus-visible:ring-transparent"
@@ -89,8 +94,9 @@ const ImagePage = () => {
                 </FormItem>
               )}
             />
-            {/* <FormField
-              name="amount"
+
+            <FormField
+              name="provider"
               control={form.control}
               render={({ field }) => (
                 <FormItem className="col-span-12 lg:col-span-2">
@@ -102,12 +108,12 @@ const ImagePage = () => {
                   >
                     <FormControl>
                       <SelectTrigger>
-                        <SelectValue />
+                        <SelectValue placeholder="Provider" />
                       </SelectTrigger>
                     </FormControl>
                     <SelectContent>
-                      {amountOptions.map((option) => (
-                        <SelectItem value={option.value} key={option.label}>
+                      {providerOptions.map((option) => (
+                        <SelectItem value={option.value} key={option.value}>
                           {option.label}
                         </SelectItem>
                       ))}
@@ -115,7 +121,8 @@ const ImagePage = () => {
                   </Select>
                 </FormItem>
               )}
-            /> */}
+            />
+
             <FormField
               name="resolution"
               control={form.control}
@@ -129,7 +136,7 @@ const ImagePage = () => {
                   >
                     <FormControl>
                       <SelectTrigger>
-                        <SelectValue />
+                        <SelectValue placeholder="Resolution" />
                       </SelectTrigger>
                     </FormControl>
                     <SelectContent>
@@ -143,6 +150,7 @@ const ImagePage = () => {
                 </FormItem>
               )}
             />
+
             <Button
               className="col-span-12 lg:col-span-2 w-full"
               disabled={isLoading}
@@ -153,6 +161,7 @@ const ImagePage = () => {
           </form>
         </Form>
       </div>
+
       <div className="space-y-4 mt-4">
         {isLoading && (
           <div className="p-20">
@@ -163,14 +172,10 @@ const ImagePage = () => {
           <Empty label="No images generated yet." />
         )}
         {singleImage && !isLoading && (
-          <div className=" flex justify-center items-center mx-auto w-[400px]   mt-8 itemc">
-            <Card className="rounded-lg overflow-hidden  w-full h-full">
+          <div className="flex justify-center items-center mx-auto w-[400px] mt-8">
+            <Card className="rounded-lg overflow-hidden w-full h-full">
               <div className="relative aspect-square">
-                {!singleImage ? (
-                  <NoImage />
-                ) : (
-                  <Image src={singleImage} fill alt="Generated Image" />
-                )}
+                <Image src={singleImage} fill alt="Generated Image" />
               </div>
               <CardFooter className="mb-4 z-20">
                 <Button

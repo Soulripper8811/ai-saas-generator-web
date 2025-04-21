@@ -1,8 +1,8 @@
 import { z } from "zod";
-export const formSchmea = z.object({
-  prompt: z.string().min(1, "Prompt is required"),
-  // amount: z.string().min(1, "Amount is required"),
-  resolution: z.string().min(1, "Resolution is required"),
+export const formSchema = z.object({
+  prompt: z.string().min(1, { message: "Image prompt is required" }),
+  resolution: z.string().min(1),
+  provider: z.string().min(1),
 });
 
 export const amountOptions = [
@@ -40,5 +40,16 @@ export const resolutionOptions = [
   {
     value: "1024x1024",
     label: "1024x1024",
+  },
+];
+
+export const providerOptions = [
+  {
+    value: "openai",
+    label: "DALL-E",
+  },
+  {
+    value: "replicate",
+    label: "SDXL Lightning",
   },
 ];

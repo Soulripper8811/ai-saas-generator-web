@@ -1,60 +1,72 @@
+// app/api/music/route.ts
 import { NextResponse } from "next/server";
 import { auth } from "@clerk/nextjs/server";
 import { checkApiLimit, increaseApiLimit } from "@/lib/api-limit";
 import { checkSubscription } from "@/lib/subscription";
+import Replicate from "replicate";
+
+// Initialize Replicate client with API token from environment variables
+const replicate = new Replicate({
+  auth: process.env.REPLICATE_API_TOKEN || "",
+});
 
 export async function POST(req: Request) {
   try {
     const { userId } = await auth();
     const body = await req.json();
     const { prompt } = body;
-    if (!userId) return NextResponse.json("Unauthorized", { status: 401 });
 
+    // Check authentication
+    if (!userId) {
+      return new NextResponse("Unauthorized", { status: 401 });
+    }
+
+    // Validate input
     if (!prompt) {
-      return NextResponse.json("Messages are required and must be an array.", {
-        status: 400,
-      });
+      return new NextResponse("Prompt is required", { status: 400 });
     }
-    const freeTrail = await checkApiLimit();
+
+    // Check if user is on free trial or has pro subscription
+    const freeTrial = await checkApiLimit();
     const isPro = await checkSubscription();
-    if (!freeTrail && !isPro) {
-      return NextResponse.json("You have reached your limit of fre trail.", {
-        status: 403,
-      });
+
+    if (!freeTrial && !isPro) {
+      return new NextResponse("Free trial has expired.", { status: 403 });
     }
 
-    const response = await fetch(
-      "https://router.huggingface.co/hf-inference/models/facebook/musicgen-small",
-      {
-        headers: {
-          Authorization: "Bearer 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",
-          "Content-Type": "application/json",
-        },
-        method: "POST",
-        body: JSON.stringify(prompt),
-      }
-    );
+    // Call Replicate API using Riffusion model
+    const prediction = await replicate.predictions.create({
+      version:
+        "8cf61ea6c56afd61d8f5b9ffd14d7c216c0a93844ce2d82ac1c9ecc9c7f24e05",
+      input: {
+        alpha: 0.5,
+        prompt_a: prompt, // Use the user's prompt as prompt_a
+        denoising: 0.75,
+        seed_image_id: "vibes",
+        num_inference_steps: 50,
+      },
+    });
 
-    const buffer = await response.arrayBuffer();
-    const base64String = arrayBufferToBase64(buffer);
-    const mimeType = "audio/mpeg"; // Change if needed
-    const dataUrl = `data:${mimeType};base64,${base64String}`;
+    // Wait for the prediction to complete
+    const result = await replicate.wait(prediction);
+    console.log("Riffusion API complete result:", result);
 
+    // The result should now contain the URLs to the generated audio
+    if (!result || !result.output || !result.output.audio) {
+      return new NextResponse("Failed to generate audio", { status: 500 });
+    }
+
+    const audioUrl = result.output.audio;
+
+    // Increment API usage limit if not a pro user
     if (!isPro) {
       await increaseApiLimit();
     }
-    return NextResponse.json(dataUrl);
-  } catch (error) {
-    return NextResponse.json("Interal Server error", { status: 500 });
-  }
-}
 
-function arrayBufferToBase64(buffer: any) {
-  let binary = "";
-  const bytes = new Uint8Array(buffer);
-  const len = bytes.byteLength;
-  for (let i = 0; i < len; i++) {
-    binary += String.fromCharCode(bytes[i]);
+    // Return the audio URL to the frontend
+    return NextResponse.json({ audioUrl });
+  } catch (error) {
+    console.error("Music generation error:", error);
+    return new NextResponse("Internal Error", { status: 500 });
   }
-  return btoa(binary);
 }
